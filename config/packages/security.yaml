@@ -1,0 +1,37 @@
+security:
+    password_hashers:
+        App\Module\User\Domain\Entity\User:
+            algorithm: auto
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Module\User\Domain\Entity\User
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        main:
+            lazy: true
+            provider: app_user_provider
+            form_login:
+                login_path: login
+                check_path: login
+                default_target_path: /dashboard
+            logout:
+                path: logout
+                target: /login
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800 # 1 week in seconds
+                path: /
+#            custom_authenticators: []
+
+    access_control:
+        - { path: ^/login, roles: null }
+        - { path: ^/register, roles: null }
+        - { path: ^/, roles: ROLE_USER }
+        - { path: ^/api/doc, roles: ROLE_ADMIN }

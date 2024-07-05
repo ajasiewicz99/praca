@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 kolumny o równej szerokości */
+            gap: 20px; /* odstęp między kafelkami */
+            margin-bottom: 20px; /* odstęp między wierszami */
+        }
+
+        .recipe-card {
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .recipe-card img {
+            max-width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .recipe-card:nth-child(4n+1) {
+            margin-right: 0; /* usuwa margin na prawo dla pierwszego elementu w każdym wierszu */
+        }
+
+        @media (max-width: 992px) {
+            .recipe-grid {
+                grid-template-columns: repeat(2, 1fr); /* po 2 kafle na mniejszych ekranach */
+            }
+        }
+
+        @media (max-width: 576px) {
+            .recipe-grid {
+                grid-template-columns: 1fr; /* na najmniejszych ekranach tylko 1 kafelek na rzędzie */
+            }
+        }
+        .header-bar {
+            width: 100%;
+            padding: 1rem;
+            border-bottom: 2px solid #ccc;
+            margin-bottom: 1rem;
+        }
+
+        .custom-btn {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-btn:hover {
+            background-color: #0f5caf;
+            color: white;
+        }
+
+        h1 {
+            margin-bottom: 1rem;
+        }
+        .macros-table th,
+        .macros-table td {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .macros-table th {
+            width: 50%;
+        }
+        .recipe-card {
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .recipe-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .overlay {
+            position: absolute;
+            bottom: -40px;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            transition: bottom 0.3s ease;
+        }
+
+        .recipe-card:hover .overlay {
+            bottom: 0;
+        }
+        body {
+            padding-top: 3.5rem;
+            background-color: #e4e9f0; /* Light gray background */
+        }
+        .navbar {
+            background-color: #0f5caf !important; /* Blue navbar */
+            color: #ffffff; /* White text */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 2; /* Ensure navbar is above sidebar */
+        }
+
+        .nav-link {
+            color: #ffffff; /* White text */
+            transition: background-color 0.3s ease;
+        }
+        .nav-link-top {
+            color: #ffffff; /* White text */
+            transition: background-color 0.3s ease;
+        }
+
+        .hamburger {
+            color: white;
+            display: inline;
+            text-align: left;
+            font-size: 20px;
+            width: 50px;
+            height: 50px;
+            padding: 10px;
+            margin-left: 5px;
+            transition: opacity 0.3s ease;
+        }
+        .dupa {
+            color: white;
+            text-align: center;
+            font-size: 20px;
+            display: none;
+            padding: 10px;
+            transition: opacity 0.3s ease; /* Smooth transition for opacity */
+        }
+        .dupa-reverse {
+            color: white;
+            text-align: left;
+            font-size: 23px;
+            transition: opacity 0.3s ease; /* Smooth transition for opacity */
+        }
+
+        .nav-link:hover {
+            background-color: #0f5caf; /* Darker blue on hover */
+            color: antiquewhite;
+        }
+        .nav-link-top:hover {
+            background-color: #1560af; /* Darker blue on hover */
+            color: white;
+        }
+
+        .nav-link.active {
+            background-color: #0f5caf !important; /* Darker blue for active link */
+        }
+
+        .stats-box {
+            background-color: #0f5caf; /* Blue background */
+            color: #ffffff; /* White text */
+            padding-left: 260px;
+            border-bottom: 2px solid #0f5caf; /* Darker blue border */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem; /* Spacing to separate from sidebar */
+            position: fixed;
+            top: 56px; /* Height of navbar */
+            left: 0; /* Width of sidebar */
+            right: 0;
+            z-index: 1; /* Ensure below navbar */
+            transition: padding-left 0.3s ease;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0.3rem; /* Height of navbar */
+            bottom: 0;
+            left: 0;
+            border-top-right-radius: 20px;
+            z-index: 100;
+            padding-top: 1.5rem;
+            width: 240px;
+            background-color: #2c3e50; /* Dark slate blue sidebar */
+            color: #ffffff; /* White text */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: width 0.3s ease;
+            padding-left: 0;
+        }
+        .sidebar.collapsed {
+            width: 80px; /* Collapsed width */
+        }
+        .sidebar.collapsed .nav-link {
+            display: none; /* Hide text next to icons */
+        }
+        .content-wrapper {
+            margin-top: 6.5rem; /* Height of navbar + stats-box */
+            margin-right: 1.5rem;
+            margin-bottom: 1.5rem;
+            background-color: #ffffff; /* White content background */
+            min-height: calc(100vh - 6.5rem - 2rem); /* Adjusted for navbar + stats-box height */
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            transition: margin-left 0.3s ease; /* Smooth transition for margin-left */
+        }
+        .footer {
+            margin-top: 1.5rem;
+            background-color: rgba(0, 0, 0, 0.05); /* Light gray footer */
+            padding: 1rem;
+            text-align: center;
+            color: #333333; /* Dark gray text */
+            border-top: 1px solid #ddd;
+        }
+        .sidebar-down-menu {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: left;
+        }
+    </style>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="#">MyApp</a>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            {% if app.user %}
+                <li class="nav-item">
+                    <a class="nav-link nav-link-top" href="#">{{ app.user.email }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-link-top" href="{{ path('logout') }}">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('login') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('register') }}">Register</a>
+                </li>
+            {% endif %}
+            <li class="nav-item">
+                <a class="nav-link nav-link-top" href="{{ path('index') }}">
+                    <i class="fas fa-home"></i> Home
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav id="sidebar" class="col-md-2 d-md-block sidebar">
+            <div class="sidebar-sticky">
+                <i id="collapseSidebarBtn">
+                    <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="hamburger">
+                        <path fill="#ffffff" d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM64 256c0-17.7 14.3-32 32-32H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H96c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg>
+                    <span class="dupa-reverse">Dietix</span>
+                </i>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="dupa {% if app.request.attributes.get('_route') == 'dashboard' %}active{% endif %}" href="{{ path('dashboard') }}">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </a>
+                        <a class="nav-link {% if app.request.attributes.get('_route') == 'dashboard' %}active{% endif %}" href="{{ path('dashboard') }}">
+                            <i class="fas fa-tachometer-alt"></i> <span class="text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="dupa {% if app.request.attributes.get('_route') == 'dish_index' %}active{% endif %}" href="{{ path('dish_index') }}">
+                            <i class="fas fa-utensils"></i>
+                        </a>
+                        <a class="nav-link {% if app.request.attributes.get('_route') == 'dish_index' %}active{% endif %}" href="{{ path('dish_index') }}">
+                            <i class="fas fa-utensils"></i> <span class="text">Dishes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="dupa {% if app.request.attributes.get('_route') == 'product_index' %}active{% endif %}" href="{{ path('product_index') }}">
+                            <i class="fas fa-carrot"></i>
+                        </a>
+                        <a class="nav-link {% if app.request.attributes.get('_route') == 'product_index' %}active{% endif %}" href="{{ path('product_index') }}">
+                            <i class="fas fa-carrot"></i> <span class="text">Products</span>
+                        </a>
+                    </li>
+                    {% if app.user and 'ROLE_ADMIN' in app.user.roles %}
+                        <div class="sidebar-down-menu">
+                    <li class="nav-item">
+                        <a class="dupa {% if app.request.attributes.get('_route') == 'api_doc' %}active{% endif %}" href="/api/doc">
+                            <i class="fas fa-book"></i>
+                        </a>
+                        <a class="nav-link {% if app.request.attributes.get('_route') == 'api_doc' %}active{% endif %}" href="/api/doc">
+                            <i class="fas fa-book"></i> <span class="text">Dokumentacja</span>
+                        </a>
+                    </li>
+                        <li class="nav-item">
+                            <a class="dupa {% if app.request.attributes.get('_route') == 'api_mail' %}active{% endif %}" href="http://localhost:8025">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                            <a class="nav-link {% if app.request.attributes.get('_route') == 'api_mail' %}active{% endif %}" href="http://localhost:8025">
+                                <i class="far fa-envelope"></i> <span class="text">Mail</span>
+                            </a>
+                        </li>
+                        </div>
+                    {% endif %}
+                    <!-- Add more menu items as needed -->
+                </ul>
+            </div>
+        </nav>
+
+        <main role="main" class="col-md-10 ml-sm-auto col-lg-10">
+            <div class="content-wrapper">
+                {% block body %}{% endblock %}
+            </div>
+        </main>
+    </div>
+</div>
+
+
+<div class="stats-box">
+{#    <h2>Dietix</h2>#}
+    <p>Ułożymy nową dietę?</p>
+</div>
+
+<footer class="footer mt-auto">
+    <div class="container text-muted text-center">
+        &copy; {{ 'now'|date('Y') }} Dietix SmartCode. All rights reserved.
+    </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Check if sidebar state is stored in localStorage
+        var sidebarState = localStorage.getItem('sidebarState');
+        if (sidebarState === 'collapsed') {
+            $('#sidebar').addClass('collapsed');
+            $('.content-wrapper').addClass('collapsed');
+            $('#sidebar').css('width', '80px');
+            $('.content-wrapper').css('margin-left', '-80px');
+            $('.stats-box').css('padding-left', '160px');
+            $('.dupa').css('display', 'block');
+            $('.dupa-reverse').css('font-size', '0');
+        }
+
+        $('.navbar-toggler').click(function () {
+            $('#sidebar').toggleClass('active');
+        });
+
+        $('#collapseSidebarBtn').click(function () {
+            $('#sidebar').toggleClass('collapsed');
+            $('.content-wrapper').toggleClass('collapsed');
+
+            if ($('#sidebar').hasClass('collapsed')) {
+                localStorage.setItem('sidebarState', 'collapsed');
+                $('#sidebar').css('width', '80px');
+                $('.content-wrapper').css('margin-left', '-80px');
+                $('.stats-box').css('padding-left', '160px');
+                $('.dupa').css('display', 'block');
+                $('.dupa-reverse').css('font-size', '0');
+            } else {
+                localStorage.setItem('sidebarState', 'expanded');
+                $('#sidebar').css('width', '240px');
+                $('.content-wrapper').css('margin-left', '0');
+                $('.stats-box').css('padding-left', '260px');
+                $('.dupa').css('display', 'none');
+                $('.dupa-reverse').css('font-size', '23px');
+            }
+        });
+    });
+</script>
+{% block javascripts %}{% endblock %}
+</body>
+</html>

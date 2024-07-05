@@ -1,0 +1,194 @@
+{# templates/dish/new.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Dodaj nowe danie{% endblock %}
+
+{% block body %}
+    <h1>Dodaj nowe danie</h1>
+    <div id="total-nutrients" class="col-sm-10">
+        <h2>Składniki odżywcze</h2>
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th scope="col">Kalorie</th>
+                <th scope="col">Białka</th>
+                <th scope="col">Węglowodany</th>
+                <th scope="col">Tłuszcze</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td id="total-calories">0 kcal</td>
+                <td id="total-protein">0 g</td>
+                <td id="total-carbs">0 g</td>
+                <td id="total-fat">0 g</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    {{ form_start(form, {'attr': {'class': 'form-horizontal', 'id': 'new-dish-form'}}) }}
+
+    <div class="form-group">
+        {{ form_label(form.name, 'Nazwa', {'label_attr': {'class': 'control-label col-sm-2'}}) }}
+        <div class="col-sm-10">
+            {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.description, 'Opis', {'label_attr': {'class': 'control-label col-sm-2'}}) }}
+        <div class="col-sm-10">
+            {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.recipe, 'Przepis', {'label_attr': {'class': 'control-label col-sm-2'}}) }}
+        <div class="col-sm-10">
+            {{ form_widget(form.recipe, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-10" style="text-align: right">
+            {{ form_widget(form.isPublic, {'attr': {'class': 'form-check-input'}}) }}
+            {{ form_label(form.isPublic, 'Czy przepis ma być publiczny?', {'label_attr': {'class': 'form-check-label'}}) }}
+        </div>
+    </div>
+
+    <hr class="hr" />
+    <h2>Produkty w daniu</h2>
+
+    <table class="table table-bordered" id="dish-products">
+        <thead>
+        <tr>
+            <th>Produkt</th>
+            <th>Gramatura</th>
+            <th>Usuń</th>
+        </tr>
+        </thead>
+        <tbody>
+        {# Existing rows for added DishProducts will be dynamically added here #}
+        </tbody>
+    </table>
+
+    {% if form.availableProducts is defined %}
+        <h2 class="mb-4">Dostępne produkty</h2>
+        <table class="table table-hover form-group" id="available-products">
+            <thead>
+            <tr>
+                <th>Produkt</th>
+                <th>Dodaj</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for choice in form.availableProducts.vars.choices %}
+                <tr>
+                    <td>{{ choice.label }}</td>
+                    <td>
+                        <button type="button" class="btn btn-success add-product-btn" data-carbs="{{ choice.data.carbs }}" data-protein="{{ choice.data.protein }}" data-fat="{{ choice.data.fat }}" data-calories="{{ choice.data.calories }}" data-product-id="{{ choice.value }}">Dodaj</button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {# Hidden submit button to trigger form submission #}
+    <button type="button" class="btn btn-primary" id="submit-form-btn">Dodaj danie</button>
+
+    <div style="display: none">{{ form_widget(form.availableProducts)|e }}</div>
+    {{ form_end(form) }}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            function addDishProduct(productId, productName, grams, calories, protein, carbs, fat) {
+                var newRow = $('<tr class="dish-product"></tr>');
+                var productColumn = $('<td></td>').text(productName);
+                var gramsColumn = $('<td></td>').text(grams);
+                var removeColumn = $('<td></td>');
+                var removeButton = $('<button type="button" class="btn btn-danger remove-product-btn">Usuń</button>');
+                removeButton.appendTo(removeColumn);
+                newRow.append(productColumn);
+                newRow.append(gramsColumn);
+                newRow.append(removeColumn);
+                $('#dish-products tbody').append(newRow);
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'form[dishProducts][' + $('#dish-products tbody tr').length + '][product][id]',
+                    value: productId
+                }).appendTo('#new-dish-form');
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'form[dishProducts][' + $('#dish-products tbody tr').length + '][grams]',
+                    value: grams
+                }).appendTo('#new-dish-form');
+                calculateTotalNutrients(calories, carbs, protein, fat); // Calculate total nutrients after adding a product
+            }
+
+            function calculateTotalNutrients(calories, carbs, protein, fat) {
+                var totalCalories = 0;
+                var totalProtein = 0;
+                var totalCarbs = 0;
+                var totalFat = 0;
+
+                $('#dish-products tbody tr').each(function() {
+                    var grams = parseFloat($(this).find('td:eq(1)').text());
+
+                    // Check if values are valid numbers
+                    if (!isNaN(grams) && !isNaN(calories) && !isNaN(protein) && !isNaN(carbs) && !isNaN(fat)) {
+                        totalCalories += calories * grams / 100;
+                        totalProtein += protein * grams / 100;
+                        totalCarbs += carbs * grams / 100;
+                        totalFat += fat * grams / 100;
+                    }
+                });
+
+                // Update the total nutrients table
+                $('#total-calories').text(totalCalories.toFixed(2) + ' kcal');
+                $('#total-protein').text(totalProtein.toFixed(2) + ' g');
+                $('#total-carbs').text(totalCarbs.toFixed(2) + ' g');
+                $('#total-fat').text(totalFat.toFixed(2) + ' g');
+            }
+
+            $('#available-products select option').on('dblclick', function() {
+                var productId = $(this).val();
+                var protein = $(this).data('protein');
+                var carbs = $(this).data('carbs');
+                var fat = $(this).data('fat');
+                var productName = $(this).text(); // Assuming the product name is the text of the option
+                var grams = prompt("Enter grams for " + productName); // Prompt user to enter grams value
+                if (grams === null || grams === '') {
+                    return; // If user cancels or leaves grams empty, do not add the row
+                }
+                addDishProduct(productId, productName, grams, calories, protein, carbs, fat);
+            });
+
+            $(document).on('click', '.add-product-btn', function() {
+                var productId = $(this).data('product-id');
+                var calories = $(this).data('calories');
+                var protein = $(this).data('protein');
+                var carbs = $(this).data('carbs');
+                var fat = $(this).data('fat');
+
+                var productName = $(this).closest('tr').find('td:first').text(); // Get product name from the first column
+                var grams = prompt("Enter grams for " + productName); // Prompt user to enter grams value
+                if (grams === null || grams === '') {
+                    return; // If user cancels or leaves grams empty, do not add the row
+                }
+                addDishProduct(productId, productName, grams, calories, protein, carbs, fat);
+            });
+
+            $(document).on('click', '.remove-product-btn', function() {
+                $(this).closest('tr').remove();
+                calculateTotalNutrients(); // Recalculate total nutrients after removing a product
+            });
+
+            $('#submit-form-btn').on('click', function() {
+                $('#new-dish-form').submit();
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{# templates/product/show.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>Szczegóły produktu: {{ product.name }}</h1>
+            <a href="{{ path('product_index') }}" class="btn btn-primary">Powrót do listy produktów</a>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text"><strong>Kalorie:</strong> {{ product.calories }} kcal</p>
+                <p class="card-text"><strong>Białko:</strong> {{ product.protein }} g</p>
+                <p class="card-text"><strong>Węglowodany:</strong> {{ product.carbs }} g</p>
+                <p class="card-text"><strong>Tłuszcze:</strong> {{ product.fat }} g</p>
+                <div class="d-flex justify-content-end">
+                    <a href="{{ path('product_edit', { id: product.id }) }}" class="btn btn-warning mr-2">Edytuj</a>
+                    <form action="{{ path('product_delete', { id: product.id }) }}" method="post" onsubmit="return confirm('Czy na pewno chcesz usunąć ten produkt?');">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="btn btn-danger">Usuń</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -3,3 +3,13 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+user:
+    resource: '../src/Module/User/App/Controller/'
+    type: attribute
+dashboard:
+    resource: '../src/Module/Dashboard/App/Controller/'
+    type: attribute
+dish:
+    resource: '../src/Module/Dish/App/Controller/'
+    type: attribute

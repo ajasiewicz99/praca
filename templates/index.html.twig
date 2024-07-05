@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            padding-top: 3.5rem;
+            background-color: #e4e9f0; /* Light gray background */
+        }
+        .navbar {
+            background-color: #1a73e8 !important; /* Blue navbar */
+            color: #ffffff; /* White text */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 2; /* Ensure navbar is above sidebar */
+        }
+
+        .nav-link {
+            color: #ffffff; /* White text */
+            transition: background-color 0.3s ease;
+        }
+        .nav-link-top {
+            color: #ffffff; /* White text */
+            transition: background-color 0.3s ease;
+        }
+        .nav-link:hover {
+            background-color: #0f5caf; /* Darker blue on hover */
+            color: antiquewhite;
+        }
+        .nav-link-top:hover {
+            background-color: #1560af; /* Darker blue on hover */
+            color: white;
+        }
+
+        .nav-link.active {
+            background-color: #0f5caf !important; /* Darker blue for active link */
+        }
+
+        .footer {
+            margin-top: 1.5rem;
+            background-color: rgba(0, 0, 0, 0.05); /* Light gray footer */
+            padding: 1rem;
+            text-align: center;
+            color: #333333; /* Dark gray text */
+            border-top: 1px solid #ddd;
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="#">Dietix SmartCode</a>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            {% if app.user %}
+                <li class="nav-item">
+                    <a class="nav-link nav-link-top" href="#">{{ app.user.email }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-link-top" href="{{ path('logout') }}">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-link-top" href="{{ path('dashboard') }}">
+                        <i class="fas fa-sign-in-alt"></i> Dashboard
+                    </a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('login') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('register') }}">Register</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+<div class="container-fluid">
+    {% block body %}{% endblock %}
+</div>
+<footer class="footer mt-auto">
+    <div class="container text-muted text-center">
+        &copy; {{ 'now'|date('Y') }} Dietix SmartCode. All rights reserved.
+    </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,150 @@
+{# templates/dish/edit.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Edytuj potrawę: {{ dish.name }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1>Edytuj potrawę: {{ dish.name }}</h1>
+
+        {{ form_start(form, {'attr': {'class': 'form-horizontal', 'id': 'edit-dish-form', 'enctype': 'multipart/form-data'}}) }}
+
+        <div class="form-group">
+            {{ form_label(form.name, 'Nazwa', {'label_attr': {'class': 'control-label col-sm-2'}}) }}
+            <div class="col-sm-10">
+                {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.description, 'Opis', {'label_attr': {'class': 'control-label col-sm-2'}}) }}
+            <div class="col-sm-10">
+                {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="image">Zdjęcie:</label>
+            <input type="file" class="form-control-file" id="image" name="image">
+        </div>
+
+        {% if dish.image %}
+            <div class="form-group">
+                <label>Aktualne zdjęcie:</label><br>
+                <img src="{{ asset(dish.image.path) }}" class="img-thumbnail" style="max-width: 200px;" alt="Current Recipe Image">
+            </div>
+        {% endif %}
+
+        <hr class="hr">
+        <h2>Produkty w daniu</h2>
+
+        <table class="table table-bordered" id="dish-products">
+            <thead>
+            <tr>
+                <th>Produkt</th>
+                <th>Gramatura</th>
+                <th>Usuń</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for dishProduct in form.dishProducts %}
+                <tr class="dish-product">
+                    <td>{{ dishProduct.vars.data.product.name }}</td>
+                    <td>{{ dishProduct.vars.data.grams }}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger remove-product-btn">Usuń</button>
+                        <input type="hidden" name="form[dishProducts][{{ loop.index0 }}][id]" value="{{ dishProduct.vars.data.id }}">
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <hr class="hr">
+        <h2>Dostępne produkty</h2>
+
+        <table class="table table-hover form-group" id="available-products">
+            <thead>
+            <tr>
+                <th>Produkt</th>
+                <th>Dodaj</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for choice in form.availableProducts.vars.choices %}
+                <tr>
+                    <td>{{ choice.label }}</td>
+                    <td>
+                        <button type="button" class="btn btn-success add-product-btn" data-product-id="{{ choice.value }}">Dodaj</button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {# Ukryty przycisk do wysłania formularza #}
+        <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+        <a href="{{ path('dish_show', { id: dish.id }) }}" class="btn btn-secondary">Anuluj</a>
+
+        {{ form_end(form) }}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            function addDishProduct(productId, productName, grams) {
+                var newRow = $('<tr class="dish-product"></tr>');
+                var productColumn = $('<td></td>').text(productName);
+                var gramsColumn = $('<td></td>').text(grams);
+
+                var removeColumn = $('<td></td>');
+                var removeButton = $('<button type="button" class="btn btn-danger remove-product-btn">Usuń</button>');
+                removeButton.appendTo(removeColumn);
+
+                newRow.append(productColumn);
+                newRow.append(gramsColumn);
+                newRow.append(removeColumn);
+
+                $('#dish-products tbody').append(newRow);
+
+                // Zwiększ liczbę istniejących produktów w formularzu
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'form[dishProducts][' + $('#dish-products tbody tr').length + '][product][id]',
+                    value: productId
+                }).appendTo('#edit-dish-form');
+
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'form[dishProducts][' + $('#dish-products tbody tr').length + '][grams]',
+                    value: grams
+                }).appendTo('#edit-dish-form');
+            }
+
+            // Funkcja do automatycznego ładowania aktualnych produktów
+            {% for dishProduct in form.dishProducts %}
+            addDishProduct(
+                    {{ dishProduct.vars.data.product.id }},
+                '{{ dishProduct.vars.data.product.name }}',
+                    {{ dishProduct.vars.data.grams }}
+            );
+            {% endfor %}
+
+            $(document).on('click', '.add-product-btn', function() {
+                var productId = $(this).data('product-id');
+                var productName = $(this).closest('tr').find('td:first').text();
+                var grams = prompt("Podaj gramaturę dla " + productName);
+                if (grams === null || grams === '') {
+                    return;
+                }
+                addDishProduct(productId, productName, grams);
+            });
+
+            $('#edit-dish-form').on('submit', function() {
+                // Tutaj możesz dodać dodatkowe walidacje lub działania przed wysłaniem formularza
+                return true; // Zwróć true, aby kontynuować wysyłanie formularza
+            });
+        });
+    </script>
+{% endblock %}

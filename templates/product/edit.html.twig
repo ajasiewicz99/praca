@@ -1,0 +1,46 @@
+{# templates/product/edit.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>Edytuj produkt: {{ product.name }}</h1>
+            <a href="{{ path('product_index') }}" class="btn btn-primary">Powrót do listy produktów</a>
+        </div>
+
+        {{ form_start(form, {'attr': {'class': 'form-horizontal', 'id': 'edit-product-form'}}) }}
+
+        <div class="form-group">
+            {{ form_label(form.name, 'Nazwa', {'label_attr': {'class': 'control-label'}}) }}
+            {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.calories, 'Kalorie (kcal)', {'label_attr': {'class': 'control-label'}}) }}
+            {{ form_widget(form.calories, {'attr': {'class': 'form-control'}}) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.protein, 'Białko (g)', {'label_attr': {'class': 'control-label'}}) }}
+            {{ form_widget(form.protein, {'attr': {'class': 'form-control'}}) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.carbs, 'Węglowodany (g)', {'label_attr': {'class': 'control-label'}}) }}
+            {{ form_widget(form.carbs, {'attr': {'class': 'form-control'}}) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.fat, 'Tłuszcze (g)', {'label_attr': {'class': 'control-label'}}) }}
+            {{ form_widget(form.fat, {'attr': {'class': 'form-control'}}) }}
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-success">Zapisz zmiany</button>
+            <a href="{{ path('product_index') }}" class="btn btn-secondary">Anuluj</a>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
