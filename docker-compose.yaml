@@ -8,13 +8,14 @@ services:
     volumes:
       - './docker/nginx/conf.d:/etc/nginx/conf.d:ro'
       - './docker/nginx/certs:/etc/nginx/certs:ro'
+      - './public:/app/public:ro'
     ports:
       - "443:443"
       - "80:80"
 
   php:
     build:
-      context: ./docker/php
+      context: docker/php
     volumes:
       - '.:/app'
     restart: on-failure
@@ -28,7 +29,7 @@ services:
 
   worker:
     build:
-      context: ./docker/php
+      context: docker/php
     volumes:
       - '.:/app'
     restart: always
@@ -49,3 +50,7 @@ services:
 
 volumes:
   db-data-dietix:
+
+###> doctrine/doctrine-bundle ###
+  database_data:
+###< doctrine/doctrine-bundle ###
